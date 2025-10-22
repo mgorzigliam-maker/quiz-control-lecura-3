@@ -702,3 +702,30 @@
   }
 })();
 
+/* ===== EXPORTAR BANCO PARA LA UI ===== */
+(function () {
+  var _tf = (typeof baseTF !== 'undefined') ? baseTF : null;
+  var _mc = (typeof baseMC !== 'undefined') ? baseMC : null;
+
+  if (!_tf && (typeof tf1 !== 'undefined')) {
+    try { _tf = [].concat(tf1, tf2, tf3, tf4); } catch(e) { _tf = []; }
+  }
+  if (!_mc && (typeof mc1 !== 'undefined')) {
+    try { _mc = [].concat(mc1, mc2, mc3, mc4); } catch(e) { _mc = []; }
+  }
+
+  window.baseTF = _tf || [];
+  window.baseMC = _mc || [];
+
+  function tag(q, label){ if (q && !q.source) q.source = { name: label, label: label }; }
+  var labels = ["Economist 2025","Baldwin 2017","Cabrales & Sanz 2024","Strain 2025"];
+  if (window.baseTF.length && !window.baseTF[0].source) {
+    var b = Math.max(1, Math.floor(window.baseTF.length/4));
+    window.baseTF.forEach((q,i)=>tag(q, labels[Math.min(3, Math.floor(i/b))]));
+  }
+  if (window.baseMC.length && !window.baseMC[0].source) {
+    var b2 = Math.max(1, Math.floor(window.baseMC.length/4));
+    window.baseMC.forEach((q,i)=>tag(q, labels[Math.min(3, Math.floor(i/b2))]));
+  }
+})();
+
