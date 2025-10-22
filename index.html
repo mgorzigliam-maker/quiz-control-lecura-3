@@ -100,7 +100,8 @@ function renderQuestion(index){
   currentIndex = index;
   const q = questions[index];
   document.getElementById('question-number').innerHTML = `Pregunta ${index+1} de ${questions.length}`;
-  document.getElementById('question-text').innerHTML = `<div class='question-source'>${q.source || ''}</div>${q.question}`;
+const src = q.source ? `<div class='question-source'>${q.source}</div>` : '';
+document.getElementById('question-text').innerHTML = `${src}${q.question}`;
   const optionsDiv = document.getElementById('options');
   optionsDiv.innerHTML = '';
   
