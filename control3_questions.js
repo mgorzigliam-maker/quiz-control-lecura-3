@@ -637,3 +637,41 @@
   window.baseTf = baseTf;
   window.baseMc = baseMc;
 })();
+
+/* ===== EXPORTAR BANCO DE PREGUNTAS PARA LA UI =====
+   La UI espera: window.baseTF (verdadero/falso) y window.baseMC (alternativas).
+   Si ya existen baseTF/baseMC, se usan. Si no, se construyen desde tf1..tf4 y mc1..mc4.
+*/
+(function () {
+  // Intenta usar las variables ya construidas
+  var _tf = (typeof baseTF !== 'undefined') ? baseTF : null;
+  var _mc = (typeof baseMC !== 'undefined') ? baseMC : null;
+
+  // Si no existen, intenta concatenar por textos
+  if (!_tf && (typeof tf1 !== 'undefined')) {
+    try { _tf = [].concat(tf1, tf2, tf3, tf4); } catch(e) { _tf = []; }
+  }
+  if (!_mc && (typeof mc1 !== 'undefined')) {
+    try { _mc = [].concat(mc1, mc2, mc3, mc4); } catch(e) { _mc = []; }
+  }
+
+  // Exponer en window con nombres que la UI espera
+  window.baseTF = _tf || [];
+  window.baseMC = _mc || [];
+
+  // (Opcional) etiqueta de origen por si faltó
+  var tag = function(q, label){ if (q && !q.source) q.source = { name: label, label: label }; return q; };
+
+  // Si las preguntas no traen source, intenta asignar por bloques
+  if (window.baseTF.length && !window.baseTF[0].source) {
+    var block = Math.floor(window.baseTF.length / 4) || 1;
+    var labels = ["Economist 2025", "Baldwin 2017", "Cabrales & Sanz 2024", "Strain 2025"];
+    window.baseTF.forEach(function(q,i){ tag(q, labels[Math.min(3, Math.floor(i / block))]); });
+  }
+  if (window.baseMC.length && !window.baseMC[0].source) {
+    var block2 = Math.floor(window.baseMC.length / 4) || 1;
+    var labels2 = ["Economist 2025", "Baldwin 2017", "Cabrales & Sanz 2024", "Strain 2025"];
+    window.baseMC.forEach(function(q,i){ tag(q, labels2[Math.min(3, Math.floor(i / block2))]); });
+  }
+})();
+
