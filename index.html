@@ -2,321 +2,174 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulación de Control de Lecturas 3</title>
+<title>Simulación de Control - Lecturas 3</title>
 <style>
-  :root{
-    --accent:#2196f3;
-    --accent-2:#673ab7;
-    --ok:#22a652;
-    --bad:#e53935;
-    --muted:#9e9e9e;
-    --light:#f5f7fb;
-    --chip:#eceff7;
-  }
-  html,body{margin:0;padding:0;background:#eef2f7;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
-  .shell{max-width:980px;margin:28px auto;padding:0 16px;}
-  .card{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(16,24,40,.08);padding:22px 22px 18px;}
-  h1{margin:0 0 8px 0;font-size:32px}
-  .lead{color:#4b5563;margin:6px 0 18px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .btn{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:12px 18px;font-weight:600;cursor:pointer}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
-  .btn.secondary{background:#e8eef8;color:#1f2937}
-  .btn.danger{background:var(--bad)}
-  .btn.ghost{background:transparent;border:1px solid #d6dbe6;color:#111827}
-  .kicker{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef2ff;color:#111827;font-weight:600}
-  /* progress */
-  .progress{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
-  .pill{min-width:34px;height:34px;border-radius:9px;border:1px solid #d7deea;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;color:#444;cursor:pointer}
-  .pill.current{border-color: var(--accent);box-shadow:0 0 0 3px rgba(33,150,243,.18)}
-  .pill.answered{background:#e6f4ea;border-color:#b7e2c3;color:#165c2a}
-  .pill.header{background:#f8f1ff;border-color:#e9dcff;color:#5a2ea6}
-  .pill.eliminated{background:#f9e1e1;border-color:#ffcccc;color:#8a1f1b}
-  /* question */
-  .qtext{font-size:20px;font-weight:700;margin:10px 0 4px}
-  .source{color:#6b7280;font-size:14px;margin-bottom:12px}
-  label.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;margin:6px 0;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer}
-  label.opt input{margin-top:2px}
-  label.opt.selected{border-color:var(--accent)}
-  .chip{display:inline-block;background:var(--chip);border-radius:999px;font-size:12px;padding:4px 8px;margin-left:6px;color:#374151}
-  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
-  .hr{height:1px;background:#eaecef;margin:14px 0}
-  .muted{color:#6b7280}
-  /* results */
-  .grid{display:grid;grid-template-columns:1fr;gap:14px}
-  @media(min-width:800px){ .grid{grid-template-columns:1fr 1fr} }
-  .result{border:1px solid #e5e7eb;border-radius:12px;padding:12px}
-  .result.good{border-color:#b7e2c3;background:#eef9f1}
-  .result.bad{border-color:#ffc9c9;background:#fff0f0}
-  .tag{font-weight:700;padding:2px 8px;border-radius:8px}
-  .tag.good{background:#d6f3dc;color:#155b2a}
-  .tag.bad{background:#ffdcdc;color:#8a1f1b}
-  .score{font-size:28px;font-weight:800}
+body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+#quiz-container { max-width: 800px; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
+#progress { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.progress-item { width: 25px; height: 25px; border-radius: 50%; background: #e0e0e0; text-align: center; line-height: 25px; cursor: pointer; font-size: 13px; }
+.progress-item.active { background: #007bff; color: white; }
+.progress-item.done { background: #28a745; color: white; }
+.progress-item.textIntro { background: #ffc107; color: black; font-weight: bold; }
+button { background: #007bff; color: white; border: none; padding: 10px 20px; margin-top: 15px; border-radius: 5px; cursor: pointer; }
+button:hover { background: #0056b3; }
+.correct { color: #28a745; font-weight: bold; }
+.incorrect { color: #dc3545; font-weight: bold; }
+#start-screen { text-align: center; margin-top: 100px; }
+#results { display: none; max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.question-source { font-size: 13px; color: #555; margin-bottom: 8px; }
 </style>
 </head>
 <body>
-<div class="shell">
-  <div class="card" id="screen-start">
-    <div class="kicker">Control 3</div>
-    <h1>Simulación de Control de Lecturas 3</h1>
-    <p class="lead">Pulsa <strong>Iniciar simulación</strong>: se tomarán 30 preguntas aleatorias (20 V/F y 10 alternativas) desde la “nube” (~500). Puedes avanzar y retroceder. “Eliminar pregunta” la saca del cómputo.</p>
-    <div class="row">
-      <button class="btn" id="btn-start">Iniciar simulación</button>
-    </div>
-  </div>
 
-  <div class="card" id="screen-quiz" style="display:none">
-    <div class="progress" id="progress"></div>
-    <div class="qtext" id="qtext"></div>
-    <div class="source" id="qsource"></div>
-    <div id="opts"></div>
-
-    <label class="opt" id="eliminateRow">
-      <input type="checkbox" id="eliminateChk" />
-      <div><strong>Eliminar pregunta</strong> <span class="muted">— no se considera para la nota</span></div>
-    </label>
-
-    <div class="footer">
-      <div class="muted" id="counter"></div>
-      <div class="row">
-        <button class="btn secondary" id="btn-prev">Anterior</button>
-        <button class="btn" id="btn-next">Siguiente</button>
-        <button class="btn danger" id="btn-end">Terminar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" id="screen-results" style="display:none">
-    <h1>Resultados</h1>
-    <p class="lead" id="resume"></p>
-    <div class="grid" id="details"></div>
-    <div class="hr"></div>
-    <div class="row">
-      <button class="btn" id="btn-again">Repetir simulación</button>
-    </div>
-  </div>
+<!-- Pantalla de inicio -->
+<div id="start-screen">
+  <h1>Simulación de Control de Lecturas 3</h1>
+  <button id="start-btn">Iniciar simulación</button>
 </div>
 
+<!-- Contenedor del quiz -->
+<div id="quiz-container">
+  <div id="question-number"></div>
+  <div id="question-text"></div>
+  <div id="options"></div>
+  <button id="prev-btn">Anterior</button>
+  <button id="next-btn">Siguiente</button>
+  <div id="progress"></div>
+</div>
+
+<!-- Resultados -->
+<div id="results">
+  <h2>Resultados</h2>
+  <p id="score"></p>
+  <p id="grade"></p>
+  <div id="detailed-results"></div>
+  <button id="restart-btn">Repetir simulación</button>
+</div>
+
+<!-- 📘 Banco de preguntas: DEBE IR PRIMERO -->
 <script src="control3_questions.js"></script>
-  
+
+<!-- Pequeño puente para compatibilidad -->
 <script>
-(function(){
-  // Utilidades
-  const rand = (a,b)=>Math.floor(Math.random()*(b-a))+a;
-  const shuffle = (arr)=>arr.sort(()=>Math.random()-0.5);
-
-  // Ensamblar la nube: esperamos que control3_questions.js haya expuesto window.baseTF / window.baseMC
-  function buildPool(){
-    if(!window.baseTF || !window.baseMC){
-      throw new Error("El banco de preguntas (baseTF/baseMC) no está disponible. Verifica control3_questions.js");
-    }
-    // Mezclar y clonar para evitar mutaciones sobre el banco.
-    const tf = shuffle(window.baseTF.slice());
-    const mc = shuffle(window.baseMC.slice());
-    return {tf, mc};
-  }
-
-  // Selección: 20 TF y 10 MC, repartidos por texto (4 bloques).
-  function pickQuestions(pool){
-    const perTextTF = 5;  // 5 VF por texto = 20
-    const perTextMC = 2;  // 2 MC por texto = 8 (completamos con +2 MC aleatorias)
-    const texts = ["Economist 2025","Baldwin 2017","Cabrales & Sanz 2024","Strain 2025"];
-
-    const out = [];
-    const tfByText = { };
-    const mcByText = { };
-    texts.forEach(t=>{ tfByText[t]=[]; mcByText[t]=[]; });
-
-    // repartir por source
-    pool.tf.forEach(q=>{ if(tfByText[q.source?.name]) tfByText[q.source.name].push(q); });
-    pool.mc.forEach(q=>{ if(mcByText[q.source?.name]) mcByText[q.source.name].push(q); });
-
-    // Por cada texto
-    texts.forEach(t=>{
-      shuffle(tfByText[t]); shuffle(mcByText[t]);
-      out.push({header:true, title:`Preguntas del texto ${t}`});
-      for(let i=0;i<perTextTF && tfByText[t][i]; i++) out.push({...tfByText[t][i], type:'tf'});
-      for(let i=0;i<perTextMC && mcByText[t][i]; i++) out.push({...mcByText[t][i], type:'mc'});
-    });
-
-    // Completar hasta 30: añadir 2 MC más al final
-    let remaining = 30 - out.filter(x=>!x.header).length;
-    if(remaining>0){
-      const more = shuffle(pool.mc.filter(q=>!out.includes(q))).slice(0, remaining).map(q=>({...q,type:'mc'}));
-      out.push(...more);
-    }
-    // Recortar si por algún motivo nos pasamos
-    const onlyQ = out.filter(x=>!x.header).slice(0,30);
-    // Reinsertar headers en posiciones apropiadas (cada ~8 preguntas)
-    const final = [];
-    let i=0;
-    ["Economist 2025","Baldwin 2017","Cabrales & Sanz 2024","Strain 2025"].forEach((t,idx)=>{
-      final.push({header:true,title:`Preguntas del texto ${t}`});
-      for(let k=0;k< (idx<3?8:6); k++){ if(i<onlyQ.length) final.push(onlyQ[i++]); }
-    });
-    return final;
-  }
-
-  // Estado
-  let pool=null, quiz=null, idx=0;
-  const answers = []; // {choice, eliminated, correctIndex}
-
-  // UI refs
-  const start = document.getElementById('screen-start');
-  const quizEl = document.getElementById('screen-quiz');
-  const resEl = document.getElementById('screen-results');
-  const progress = document.getElementById('progress');
-  const qtext = document.getElementById('qtext');
-  const qsource = document.getElementById('qsource');
-  const opts = document.getElementById('opts');
-  const counter = document.getElementById('counter');
-  const eliminateChk = document.getElementById('eliminateChk');
-
-  function renderProgress(){
-    progress.innerHTML='';
-    quiz.forEach((q,i)=>{
-      const p = document.createElement('div');
-      p.className='pill'+(i===idx?' current':'')+(q.header?' header':'')+((answers[i]&&answers[i].eliminated)?' eliminated':'');
-      p.textContent = q.header ? '•' : (i+1);
-      p.title = q.header ? q.title : `Pregunta ${i+1}`;
-      p.onclick=()=>{ idx=i; renderQuestion(); };
-      progress.appendChild(p);
-    });
-  }
-
-  function renderQuestion(){
-    // Saltar headers automáticamente
-    while(quiz[idx] && quiz[idx].header){ idx++; if(idx>=quiz.length) break; }
-    if(idx>=quiz.length){ showResults(); return; }
-
-    renderProgress();
-    const q = quiz[idx];
-    counter.textContent = `Pregunta ${idx+1} de ${quiz.filter(x=>!x.header).length}`;
-    qtext.textContent = q.question;
-    qsource.textContent = `Texto: ${q.source?.label || q.source?.name || '—'}`;
-
-    // Opciones
-    opts.innerHTML='';
-    const record = answers[idx] || {choice:null, eliminated:false, correctIndex:q.answer};
-    eliminateChk.checked = record.eliminated || false;
-
-    function addOption(label, i){
-      const row = document.createElement('label');
-      row.className='opt'+(record.choice===i?' selected':'');
-      const input = document.createElement('input');
-      input.type='radio'; input.name='opt';
-      input.checked = record.choice===i;
-      input.onchange=()=>{ record.choice=i; answers[idx]=record; renderProgress(); };
-      row.appendChild(input);
-      const span = document.createElement('div');
-      span.innerHTML = label;
-      row.appendChild(span);
-      row.onclick=(e)=>{ if(e.target.tagName!=='INPUT'){ input.checked=true; input.dispatchEvent(new Event('change')); } };
-      opts.appendChild(row);
-    }
-
-    if(q.type==='tf'){
-      addOption('Verdadero',0);
-      addOption('Falso',1);
-    }else{
-      (q.options || []).forEach((t,i)=> addOption(t,i));
-    }
-
-    // Eliminar
-    document.getElementById('eliminateRow').style.display='block';
-    eliminateChk.onchange=()=>{ record.eliminated = eliminateChk.checked; answers[idx]=record; renderProgress(); };
-  }
-
-  function grade(){
-    let total = 0, ok = 0;
-    quiz.forEach((q,i)=>{
-      if(q.header) return;
-      const rec = answers[i] || {choice:null, eliminated:false};
-      if(rec.eliminated) return; // excluye del total
-      total++;
-      if(rec.choice===q.answer) ok++;
-    });
-    const pct = total>0 ? Math.round((ok/total)*100) : 0;
-    // Nota: escala 1 a 7 con 80% = 7
-    let nota = 1 + 6 * (Math.min(pct,80) / 80);
-    nota = Math.round(nota*10)/10;
-    return {total, ok, pct, nota};
-  }
-
-  function showResults(){
-    quizEl.style.display='none';
-    resEl.style.display='block';
-
-    const {total,ok,pct,nota} = grade();
-    document.getElementById('resume').innerHTML =
-      `<span class="score">${pct}%</span> — ${ok} buenas de ${total} consideradas (nota: <strong>${nota}</strong>).`;
-
-    const details = document.getElementById('details');
-    details.innerHTML='';
-    quiz.forEach((q,i)=>{
-      if(q.header) return;
-      const rec = answers[i] || {choice:null, eliminated:false};
-      const good = rec.choice===q.answer;
-      const card = document.createElement('div');
-      card.className='result '+(rec.eliminated?'':'')+(good?' good':' bad');
-      card.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-          <div class="tag ${good?'good':'bad'}">${good?'Correcta':'Incorrecta'}</div>
-          ${rec.eliminated?'<span class="chip">Eliminada</span>':''}
-        </div>
-        <div class="qtext" style="font-size:16px;margin:8px 0 6px">${i+1}. ${q.question}</div>
-        <div class="source">${q.source?.label || q.source?.name || ''}</div>
-      `;
-      // opciones
-      const list = document.createElement('div');
-      (q.type==='tf' ? ['Verdadero','Falso'] : q.options).forEach((t,idxOpt)=>{
-        const line = document.createElement('div');
-        const isCorrect = idxOpt===q.answer;
-        const marked = rec.choice===idxOpt;
-        line.style.padding='6px 8px';
-        line.style.borderRadius='8px';
-        line.style.margin='4px 0';
-        line.style.border = '1px solid #e5e7eb';
-        if(marked && !good){ line.style.color = 'white'; line.style.background= 'var(--bad)'; line.style.borderColor='var(--bad)'; }
-        if(isCorrect){ line.style.background = '#eef9f1'; line.style.borderColor='#b7e2c3'; }
-        line.innerHTML = (q.type==='tf' ? (idxOpt===0?'V':'F')+'. ' : String.fromCharCode(65+idxOpt)+'. ') + t +
-          (isCorrect?' <span class="chip">Correcta</span>':'' ) +
-          (marked && !good?' <span class="chip" style="background:#ffe2e2;color:#8a1f1b">Marcada</span>':'');
-        list.appendChild(line);
-      });
-      card.appendChild(list);
-      details.appendChild(card);
-    });
-  }
-
-  // Botones
-  document.getElementById('btn-start').onclick = ()=>{
-    try{
-      pool = buildPool();
-      quiz = pickQuestions(pool);
-      answers.length = quiz.length;
-      idx = 0;
-      start.style.display='none';
-      resEl.style.display='none';
-      quizEl.style.display='block';
-      renderQuestion();
-    }catch(e){
-      alert(e.message);
-    }
-  };
-  document.getElementById('btn-prev').onclick = ()=>{ idx = Math.max(0, idx-1); renderQuestion(); };
-  document.getElementById('btn-next').onclick = ()=>{ idx = Math.min(quiz.length-1, idx+1); renderQuestion(); };
-  document.getElementById('btn-end').onclick  = ()=> showResults();
-  document.getElementById('btn-again').onclick= ()=>{ location.reload(); };
-
-})();
-</script>
-
-<script>
-// Puente de compatibilidad: si existen baseTf/baseMc, expórtalas también como baseTF/baseMC
 window.baseTF = window.baseTF || window.baseTf || [];
 window.baseMC = window.baseMC || window.baseMc || [];
 </script>
+
+<!-- 🔥 Lógica principal del simulador -->
+<script>
+(function(){
+let questions = [];
+let currentIndex = 0;
+let answers = {};
+let questionElements = [];
+let questionTypes = [];
+
+function startQuiz(){
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+  buildPool();
+  renderQuestion(0);
+}
+
+function buildPool(){
+  const tfPool = [...window.baseTF];
+  const mcPool = [...window.baseMC];
+  shuffle(tfPool); shuffle(mcPool);
+  let selectedTF = tfPool.slice(0, 20);
+  let selectedMC = mcPool.slice(0, 10);
+  questions = [...selectedTF, ...selectedMC];
+  questions = shuffle(questions);
+  questionTypes = questions.map(q => q.hasOwnProperty('options') ? 'mc' : 'tf');
+  renderProgress();
+}
+
+function renderProgress(){
+  const progressDiv = document.getElementById('progress');
+  progressDiv.innerHTML = '';
+  questions.forEach((_, i) => {
+    const item = document.createElement('div');
+    item.classList.add('progress-item');
+    item.innerText = i+1;
+    item.onclick = () => { renderQuestion(i); };
+    progressDiv.appendChild(item);
+  });
+}
+
+function renderQuestion(index){
+  currentIndex = index;
+  const q = questions[index];
+  document.getElementById('question-number').innerHTML = `Pregunta ${index+1} de ${questions.length}`;
+  document.getElementById('question-text').innerHTML = `<div class='question-source'>${q.source || ''}</div>${q.question}`;
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  
+  if(q.options){
+    q.options.forEach((opt, i)=>{
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.onclick = ()=>selectAnswer(index,i);
+      optionsDiv.appendChild(btn);
+      optionsDiv.appendChild(document.createElement('br'));
+    });
+  } else {
+    ['Verdadero','Falso','No es relevante'].forEach((opt, i)=>{
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.onclick = ()=>selectAnswer(index, i===2?'skip':(i===0));
+      optionsDiv.appendChild(btn);
+      optionsDiv.appendChild(document.createElement('br'));
+    });
+  }
+  updateProgress();
+}
+
+function selectAnswer(index, val){
+  answers[index] = val;
+  if(currentIndex < questions.length - 1) renderQuestion(currentIndex+1);
+  else showResults();
+}
+
+function updateProgress(){
+  document.querySelectorAll('.progress-item').forEach((el, i)=>{
+    el.classList.remove('active','done');
+    if(i === currentIndex) el.classList.add('active');
+    else if(answers.hasOwnProperty(i)) el.classList.add('done');
+  });
+}
+
+function showResults(){
+  document.getElementById('quiz-container').style.display='none';
+  document.getElementById('results').style.display='block';
+  
+  let total=0, correct=0;
+  questions.forEach((q,i)=>{
+    if(answers[i]!=='skip'){ total++; }
+    if(q.options){
+      if(answers[i]===q.answer) correct++;
+    } else {
+      if(answers[i]===q.answer) correct++;
+    }
+  });
+  const percent = ((correct/total)*100).toFixed(1);
+  const note = (percent>=80)?7:(percent>=60)?6:(percent>=40)?5:(percent>=20)?4:3;
+  
+  document.getElementById('score').textContent = `Preguntas correctas: ${correct}/${total} (${percent}%)`;
+  document.getElementById('grade').textContent = `Nota estimada: ${note.toFixed(1)}`;
+}
+
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+
+document.getElementById('start-btn').onclick = startQuiz;
+document.getElementById('restart-btn').onclick = ()=>location.reload();
+})();
+</script>
+
 </body>
 </html>
